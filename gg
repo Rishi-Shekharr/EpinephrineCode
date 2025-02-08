@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epinephrine Code - Logistics Solver</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #f8e0ff;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .header {
+            background-color: #ffc0cb;
+            color: #800080;
+            text-align: center;
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+            transition: opacity 0.3s ease;
+            border-bottom: 2px solid #dda0dd;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            margin: 0;
+            animation: fadeInDown 1s ease;
+        }
+
+        .content {
+            padding: 20px;
+            margin-top: 100px;
+            flex: 1;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .pdf-upload {
+            margin-bottom: 30px;
+            border: 2px dotted #dda0dd;
+            padding: 20px;
+            background-color: #fff0f5;
+            border-radius: 10px;
+            text-align: center;
+            animation: fadeIn 1.5s ease;
+        }
+
+        .pdf-upload input[type="file"] {
+            display: none;
+        }
+
+        .pdf-upload label {
+            background-color: #dda0dd;
+            color: #800080;
+            padding: 10px 20px;
+            border: 2px outset #ba55d3;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .pdf-upload label:hover {
+            background-color: #ba55d3;
+            border-color: #9932cc;
+        }
+
+        .question-area {
+            margin-bottom: 30px;
+            border: 2px dashed #dda0dd;
+            padding: 20px;
+            background-color: #fff5ee;
+            border-radius: 10px;
+            animation: fadeIn 2s ease;
+        }
+
+        .question-area textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #dda0dd;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            resize: vertical;
+            margin-bottom: 10px;
+            background-color: #fff8dc;
+        }
+
+        .question-area button {
+            background-color: #dda0dd;
+            color: #800080;
+            padding: 10px 20px;
+            border: 2px outset #ba55d3;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .question-area button:hover {
+            background-color: #ba55d3;
+            border-color: #9932cc;
+        }
+
+        .response-area {
+            background-color: #fff8dc;
+            padding: 20px;
+            border: 2px groove #dda0dd;
+            border-radius: 10px;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+            animation: fadeIn 2.5s ease;
+        }
+
+        .fade-out {
+            opacity: 0;
+        }
+
+        .marquee {
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            margin-bottom: 20px;
+            background-color: #dda0dd;
+            color: #800080;
+            padding: 10px;
+            border-radius: 5px;
+            animation: fadeIn 1s ease;
+        }
+
+        .marquee span {
+            animation: marquee 10s linear infinite;
+            font-style: oblique;
+        }
+
+        @keyframes marquee {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+            .content {
+                padding: 10px;
+                margin-top: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Epinephrine Code - Logistics Solver</h1>
+    </div>
+
+    <div class="content">
+        <div class="marquee">
+            <span>Welcome to Epinephrine Logistics Solver</span>
+        </div>
+
+        <div class="pdf-upload">
+            <input type="file" id="pdfFile" accept=".pdf">
+            <label for="pdfFile">Upload Profiles</label>
+        </div>
+
+        <div class="question-area">
+            <label for="question">Enter Job Description:</label><br>
+            <textarea id="question" rows="4" placeholder="The AI will provide the best trucker for the job..."></textarea><br>
+            <button onclick="getAIResponse()">Get Response</button>
+        </div>
+
+        <div class="response-area" id="response"></div>
+    </div>
+
+    <script>
+        alert("#Epinephrine_Code");
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 0) {
+                header.classList.add('fade-out');
+            } else {
+                header.classList.remove('fade-out');
+            }
+        });
+
+        function getAIResponse() {
+            const question = document.getElementById('question').value;
+            const responseDiv = document.getElementById('response');
+            const pdfFile = document.getElementById('pdfFile').files[0];
+
+            if (!pdfFile) {
+                responseDiv.textContent = "Please upload a PDF first.";
+                return;
+            }
+
+            responseDiv.textContent = "Thinking... (This is a placeholder for the AI response)";
+            setTimeout(() => {
+                const mockResponse = `AI Response to: ${question} (From ${pdfFile.name})`;
+                responseDiv.textContent = mockResponse;
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
