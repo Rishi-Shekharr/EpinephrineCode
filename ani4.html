@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocify</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --accent-pink: #E91E63;
+            --accent-purple: #9C27B0;
+            --primary-blue: #2196F3;
+            --secondary-green: #4CAF50;
+            --page-bg-start: #E3F2FD;
+            --page-bg-mid: #EDE7F6;
+            --page-bg-end: #E8F5E9;
+            --card-bg: #FFFFFF;
+            --container-bg: var(--card-bg);
+            --dark-text: #333740;
+            --light-text: #FFFFFF;
+            --border-color: #E0E0E0;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --border-radius: 18px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(145deg, var(--page-bg-start) 0%, var(--page-bg-mid) 50%, var(--page-bg-end) 100%);
+            color: var(--dark-text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding: 40px 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background-color: var(--container-bg);
+            padding: 45px 55px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+            animation: fadeInScaleUp 1s cubic-bezier(0.165, 0.84, 0.44, 1);
+            border: 1px solid var(--border-color);
+            margin-bottom: 40px;
+        }
+
+        @keyframes fadeInScaleUp {
+            from { opacity: 0; transform: translateY(35px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        header { margin-bottom: 40px; }
+        header h1 {
+            color: var(--accent-pink);
+            font-size: 4em;
+            margin-bottom: 15px;
+            font-weight: 700;
+            letter-spacing: -3px;
+            animation: headerFadeInUp 0.9s 0.2s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+            opacity: 0;
+        }
+        header p {
+            font-size: 1.4em;
+            color: var(--dark-text);
+            margin-bottom: 0;
+            font-weight: 400;
+            animation: headerFadeInUp 0.9s 0.45s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+            opacity: 0;
+        }
+        @keyframes headerFadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .upload-section, .query-section, .response-section {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            margin-bottom: 40px;
+            box-shadow: 0 7px 22px rgba(70, 70, 90, 0.09);
+            animation: sectionSlideInUp 0.8s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+            opacity: 0;
+            border: 1px solid var(--border-color);
+        }
+        @keyframes sectionSlideInUp {
+            from { opacity: 0; transform: translateY(60px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .upload-section { animation-delay: 0.7s; }
+        
+        h2 {
+            color: var(--secondary-green);
+            margin-bottom: 35px;
+            font-weight: 600;
+            font-size: 1.9em;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .visible h2 { /* This might not be used if sections are directly shown with style.display */
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInSlideH2 0.6s 0.25s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+        }
+        @keyframes fadeInSlideH2 { to { opacity: 1; transform: translateY(0); } }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 18px;
+            color: var(--dark-text);
+            text-align: left;
+            font-size: 1.2em;
+        }
+        input[type="file"] { display: none; }
+
+        .custom-file-upload {
+            border: 3px dashed var(--primary-blue);
+            border-radius: var(--border-radius);
+            display: inline-block;
+            padding: 18px 35px;
+            cursor: pointer;
+            background-color: #E3F2FD;
+            color: var(--primary-blue);
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+            margin-bottom: 20px;
+            animation: pulseButton 2.2s infinite 1.2s;
+        }
+        @keyframes pulseButton {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--primary-blue), 0.4); }
+            70% { transform: scale(1.025); box-shadow: 0 0 0 14px rgba(var(--primary-blue), 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--primary-blue), 0); }
+        }
+        .custom-file-upload:hover, .custom-file-upload.file-selected {
+            animation-play-state: paused;
+            transform: scale(1.03) translateY(-3px);
+            background-color: var(--primary-blue);
+            color: var(--light-text);
+            border-color: var(--primary-blue);
+        }
+        #fileName {
+            margin-top: 20px;
+            font-style: italic;
+            color: var(--dark-text);
+            font-size: 1.05em;
+        }
+        #pdfStatus {
+            margin-top: 18px;
+            font-weight: 500;
+            height: 30px;
+            font-size: 1.15em;
+        }
+        #pdfStatusIcon { margin-right: 10px; font-size: 1.3em; }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 20px;
+            margin-bottom: 28px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1em;
+            resize: vertical;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+            background-color: #FAFAFC;
+        }
+        textarea:focus, input[type="text"]:focus {
+            border-color: var(--accent-pink);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(233, 30, 99, 0.25);
+            background-color: var(--card-bg);
+        }
+
+        button#submitQuery {
+            background: linear-gradient(60deg, var(--accent-pink), var(--accent-purple));
+            color: white;
+            padding: 20px 40px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 5px 12px rgba(156, 39, 176, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        button#submitQuery:hover:not(:disabled) {
+            transform: translateY(-6px) scale(1.03);
+            box-shadow: 0 8px 20px rgba(233, 30, 99, 0.4);
+        }
+        button#submitQuery:disabled {
+            background: linear-gradient(60deg, #D1C4E9, #CFD8DC);
+            color: #78909C;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        #responseArea {
+            background-color: #F8F9FE;
+            padding: 35px;
+            border-radius: var(--border-radius);
+            text-align: left;
+            min-height: 160px;
+            border: 1px solid var(--border-color);
+            animation: resultContainerFadeIn 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
+            white-space: pre-wrap;
+            line-height: 1.85;
+            transition: opacity 0.4s ease-in-out;
+        }
+        @keyframes resultContainerFadeIn {
+            from { opacity: 0; transform: translateY(25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        #responseArea > p:first-child {
+            font-size: 1.15em;
+            font-weight: 500;
+            color: var(--primary-blue);
+            margin-bottom: 25px;
+        }
+        #responseArea ul { list-style-type: none; padding-left: 0; }
+        #responseArea li:not(.suggestion) {
+            background-color: var(--card-bg);
+            border-left: 7px solid var(--accent-purple);
+            padding: 22px 28px;
+            margin-bottom: 20px;
+            border-radius: 14px;
+            box-shadow: 0 5px 10px rgba(70, 70, 90, 0.07);
+            transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+            opacity: 0;
+            transform: scale(0.95) translateY(10px);
+            animation: popInListItem 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        #responseArea li:not(.suggestion):nth-child(1) { animation-delay: 0.1s; }
+        #responseArea li:not(.suggestion):nth-child(2) { animation-delay: 0.18s; }
+        #responseArea li:not(.suggestion):nth-child(3) { animation-delay: 0.26s; }
+        #responseArea li:not(.suggestion):nth-child(4) { animation-delay: 0.34s; }
+        #responseArea li:not(.suggestion):nth-child(5) { animation-delay: 0.42s; }
+        /* Add more if expecting more items */
+        #responseArea li:not(.suggestion):nth-child(6) { animation-delay: 0.50s; }
+        #responseArea li:not(.suggestion):nth-child(7) { animation-delay: 0.58s; }
+        #responseArea li:not(.suggestion):nth-child(8) { animation-delay: 0.66s; }
+
+
+        @keyframes popInListItem { to { opacity: 1; transform: scale(1) translateY(0); } }
+        #responseArea li:not(.suggestion):hover {
+            transform: translateX(10px) scale(1.02);
+            box-shadow: 0 7px 15px rgba(70, 70, 90, 0.12);
+        }
+        #responseArea .info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        #responseArea .info-item:last-child { margin-bottom: 0; }
+        #responseArea .info-item .icon {
+            margin-right: 12px;
+            color: var(--primary-blue);
+            font-size: 1.25em;
+            display: inline-block;
+            opacity: 0;
+            transform: scale(0.5) rotate(-15deg);
+            animation: popInIcon 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            width: 28px;
+            text-align: center;
+        }
+        /* Icon animation delays */
+        #responseArea li:not(.suggestion) .info-item:nth-of-type(1) .icon { animation-delay: 0.3s; }
+        #responseArea li:not(.suggestion) .info-item:nth-of-type(2) .icon { animation-delay: 0.38s; }
+        #responseArea li:not(.suggestion) .info-item:nth-of-type(3) .icon { animation-delay: 0.46s; }
+        #responseArea li:not(.suggestion) .info-item:nth-of-type(4) .icon { animation-delay: 0.54s; }
+        #responseArea li:not(.suggestion) .info-item:nth-of-type(5) .icon { animation-delay: 0.62s; }
+        #responseArea li:not(.suggestion) .info-item:nth-of-type(6) .icon { animation-delay: 0.70s; }
+        #responseArea li:not(.suggestion) .info-item:nth-of-type(7) .icon { animation-delay: 0.78s; } /* Added for Quantity */
+
+        @keyframes popInIcon { to { opacity: 1; transform: scale(1) rotate(0deg); } }
+        #responseArea .info-item .deal-text { color: var(--accent-pink); font-weight: 600; }
+        #responseArea .info-item strong { color: var(--dark-text); font-weight: 500; margin-right: 6px; }
+
+        #responseArea .suggestion {
+            background-color: #F3E5F5;
+            border-left: 7px solid var(--accent-purple);
+            color: var(--dark-text);
+            padding: 20px 28px;
+            margin-bottom: 18px;
+            border-radius: 14px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInSuggestion 0.6s 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+            font-size: 1.1em;
+        }
+        @keyframes fadeInSuggestion { to { opacity: 1; transform: translateY(0); } }
+        #responseArea .suggestion strong { color: var(--accent-purple); }
+
+        #responseArea .no-results {
+            color: var(--accent-pink);
+            font-weight: 500;
+            text-align: center;
+            padding: 40px 30px;
+            background-color: #FCE4EC;
+            border-radius: var(--border-radius);
+            font-size: 1.2em;
+            opacity: 0;
+            animation: fadeInNoResults 0.6s ease-out forwards;
+            border: 2px dashed var(--accent-pink);
+        }
+        @keyframes fadeInNoResults { to { opacity: 1; } }
+
+        .loader {
+            border: 8px solid #E8EAF6;
+            border-top: 8px solid var(--accent-pink);
+            border-radius: 50%;
+            width: 55px;
+            height: 55px;
+            animation: spin 0.8s linear infinite;
+            margin: 40px auto;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .query-section, .response-section { display: none; opacity: 0; }
+        .query-section.visible, .response-section.visible {
+            display: block;
+            opacity: 1;
+            animation: sectionSlideInUp 0.8s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Grocify</h1>
+            <p>Hello, I am Grocee. Let's fresh fetch!</p>
+        </header>
+
+        <section class="upload-section">
+            <h2>1. Upload Your E-Groceries PDF</h2>
+            <label for="pdfFile" class="custom-file-upload">✨ Choose PDF File ✨</label>
+            <input type="file" id="pdfFile" accept=".pdf">
+            <p id="fileName">No file selected.</p>
+            <p id="pdfStatus">
+                <span id="pdfStatusIcon"></span><span id="pdfStatusText"></span>
+            </p>
+        </section>
+
+        <section class="query-section" id="querySection">
+            <h2>2. Ask Grocee</h2>
+            <label for="userQuery">Enter your query (e.g., "best deal on apples and milk", "fastest delivery for bread"): </label>
+            <textarea id="userQuery" rows="4" placeholder="What are you looking for today? 🥕🍓🍞"></textarea>
+            <button id="submitQuery" disabled>Fetch Groceries Info</button>
+        </section>
+
+        <section class="response-section" id="responseSection">
+            <h2>3. Grocee's Insights</h2>
+            <div class="loader" id="loader"></div>
+            <div id="responseArea">
+                Awaiting your query...
+            </div>
+        </section>
+    </div>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
+
+        const pdfFileInput = document.getElementById('pdfFile');
+        const fileNameDisplay = document.getElementById('fileName');
+        const pdfStatusDisplay = document.getElementById('pdfStatus');
+        const pdfStatusIcon = document.getElementById('pdfStatusIcon');
+        const pdfStatusText = document.getElementById('pdfStatusText');
+        const querySection = document.getElementById('querySection');
+        const userQueryInput = document.getElementById('userQuery');
+        const submitQueryButton = document.getElementById('submitQuery');
+        const responseSection = document.getElementById('responseSection');
+        const responseArea = document.getElementById('responseArea');
+        const loader = document.getElementById('loader');
+        const customFileUploadButton = document.querySelector('.custom-file-upload');
+
+        let pdfTextData = []; 
+
+        pdfFileInput.addEventListener('change', handlePdfUpload);
+
+        function showSection(sectionElement) {
+            sectionElement.style.display = 'block'; 
+            setTimeout(() => {
+                 sectionElement.classList.add('visible');
+            }, 10); 
+        }
+        function hideSection(sectionElement) {
+            sectionElement.classList.remove('visible');
+            setTimeout(() => { 
+                if (!sectionElement.classList.contains('visible')) {
+                    sectionElement.style.display = 'none';
+                }
+            }, 800); 
+        }
+
+        function handlePdfUpload(event) {
+            const file = event.target.files[0];
+            pdfTextData = [];
+            
+            hideSection(querySection);
+            hideSection(responseSection);
+
+            submitQueryButton.disabled = true;
+            responseArea.innerHTML = "Awaiting your query...";
+
+            if (file && file.type === "application/pdf") {
+                fileNameDisplay.textContent = `Selected: ${file.name}`;
+                customFileUploadButton.classList.add('file-selected'); 
+                pdfStatusIcon.textContent = "⏳";
+                pdfStatusText.textContent = "Processing PDF...";
+                pdfStatusDisplay.style.color = "var(--primary-blue)"; 
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const typedarray = new Uint8Array(e.target.result);
+                    pdfjsLib.getDocument({data: typedarray}).promise.then(pdf => {
+                        const numPages = pdf.numPages;
+                        let pagePromises = [];
+
+                        for (let i = 1; i <= numPages; i++) {
+                            pagePromises.push(
+                                pdf.getPage(i).then(page => {
+                                    return page.getTextContent().then(textContent => {
+                                        let linesFromPage = [];
+                                        let currentLineItems = []; // Store {text, y, x, height} objects for current line
+                                        let lastY = -1;
+                                        const Y_TOLERANCE = 5; // Adjust as needed
+
+                                        // Sort items by Y primarily, then X
+                                        let sortedItems = textContent.items.slice().sort((a,b) => {
+                                            const yA = a.transform[5];
+                                            const yB = b.transform[5];
+                                            const xA = a.transform[4];
+                                            const xB = b.transform[4];
+                                            const heightA = a.height || Y_TOLERANCE;
+
+                                            if (Math.abs(yA - yB) > heightA * 0.5) { // If Y difference is significant
+                                                return yA - yB; // Sort by Y
+                                            }
+                                            return xA - xB; // Else sort by X
+                                        });
+                                        
+                                        sortedItems.forEach(item => {
+                                            const itemY = item.transform[5];
+                                            if (lastY !== -1 && Math.abs(itemY - lastY) > (item.height || Y_TOLERANCE) * 0.7 ) {
+                                                // New line detected
+                                                if (currentLineItems.length > 0) {
+                                                    // Sort items on this line by X before joining
+                                                    currentLineItems.sort((a,b) => a.x - b.x);
+                                                    linesFromPage.push(currentLineItems.map(i => i.text).join(" ").trim());
+                                                }
+                                                currentLineItems = [];
+                                            }
+                                            currentLineItems.push({text: (item.str || ''), y: itemY, x: item.transform[4], height: item.height});
+                                            lastY = itemY;
+                                        });
+                                        // Add the last line
+                                        if (currentLineItems.length > 0) {
+                                            currentLineItems.sort((a,b) => a.x - b.x);
+                                            linesFromPage.push(currentLineItems.map(i => i.text).join(" ").trim());
+                                        }
+                                        
+                                        // Fallback if Y-coordinate logic produces very few lines
+                                        if (linesFromPage.length < 5 && textContent.items.length > 20) { 
+                                            console.warn("Y-coordinate line reconstruction produced few lines for a dense page, attempting simpler line join.");
+                                            linesFromPage = []; // Reset
+                                            let simpleLine = "";
+                                            textContent.items.forEach(item => simpleLine += (item.str || '') + " ");
+                                            linesFromPage = simpleLine.split(/\r\n|\r|\n/).map(line => line.replace(/\s+/g, ' ').trim()).filter(line => line.length > 10);
+                                            if (linesFromPage.length === 0 && simpleLine.length > 10) linesFromPage.push(simpleLine); // if no newlines, one big line
+                                        }
+                                        return linesFromPage.filter(line => line.length > 10 && line.split(/\s+/).length > 2); // Filter for meaningful lines 
+                                    });
+                                })
+                            );
+                        }
+                        return Promise.all(pagePromises);
+                    }).then(pagesTextArrays => {
+                        pagesTextArrays.forEach(pageLines => {
+                            pdfTextData.push(...pageLines);
+                        });
+                        
+                        if (pdfTextData.length > 0) {
+                            pdfStatusIcon.textContent = "✅";
+                            pdfStatusText.textContent = "PDF processed! You can now ask Grocee.";
+                            pdfStatusDisplay.style.color = "var(--secondary-green)";
+                            showSection(querySection);
+                            showSection(responseSection);
+                            submitQueryButton.disabled = false;
+                            responseArea.innerHTML = "PDF data loaded. Ready for your query!";
+                        } else {
+                            pdfStatusIcon.textContent = "⚠️";
+                            pdfStatusText.textContent = "PDF processed, but no usable text found. Try a different PDF or check its text content.";
+                            pdfStatusDisplay.style.color = "var(--accent-pink)"; 
+                            fileNameDisplay.textContent = "No file selected.";
+                            customFileUploadButton.classList.remove('file-selected');
+                        }
+                    }).catch(error => {
+                        console.error("Error processing PDF:", error);
+                        pdfStatusIcon.textContent = "❌";
+                        pdfStatusText.textContent = "Error processing PDF. Please try another file.";
+                        pdfStatusDisplay.style.color = "var(--accent-pink)"; 
+                        fileNameDisplay.textContent = "No file selected.";
+                        customFileUploadButton.classList.remove('file-selected');
+                    });
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                fileNameDisplay.textContent = "No file selected or invalid file type (PDF only).";
+                customFileUploadButton.classList.remove('file-selected');
+                pdfStatusIcon.textContent = "";
+                pdfStatusText.textContent = "";
+            }
+        }
+
+        submitQueryButton.addEventListener('click', handleQuerySubmit);
+        userQueryInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault(); 
+                if (!submitQueryButton.disabled) handleQuerySubmit();
+            }
+        });
+
+        function handleQuerySubmit() {
+            const query = userQueryInput.value.trim();
+            if (!query) {
+                responseArea.style.opacity = 0;
+                setTimeout(() => {
+                    responseArea.innerHTML = "<p class='no-results'>Please enter a query.</p>";
+                    responseArea.style.opacity = 1;
+                }, 300);
+                return;
+            }
+            if (pdfTextData.length === 0) {
+                 responseArea.style.opacity = 0;
+                setTimeout(() => {
+                    responseArea.innerHTML = "<p class='no-results'>Please upload and process a PDF first.</p>";
+                    responseArea.style.opacity = 1;
+                }, 300);
+                return;
+            }
+
+            loader.style.display = 'block';
+            responseArea.style.opacity = 0; 
+            submitQueryButton.disabled = true;
+
+            setTimeout(() => { 
+                const results = searchPdfData(query);
+                displayResults(results, query); 
+                loader.style.display = 'none';
+                submitQueryButton.disabled = false; 
+            }, 1200); 
+        }
+
+        function parseDeliveryTimeToMinutes(deliveryTimeStr) {
+            if (!deliveryTimeStr || typeof deliveryTimeStr !== 'string') return Infinity;
+            const lowerStr = deliveryTimeStr.toLowerCase();
+            const minMatch = lowerStr.match(/(\d+)\s*mins?(?:utes)?/);
+            if (minMatch) {
+                return parseInt(minMatch[1], 10);
+            }
+            const hourMatchGeneral = lowerStr.match(/(\d+)\s*hour/);
+            if (hourMatchGeneral) {
+                return parseInt(hourMatchGeneral[1], 10) * 60;
+            }
+            if (lowerStr.includes("same day")) { 
+                return 24 * 60; 
+            }
+            return Infinity; 
+        }
+
+        function isCommonQueryWord(word) {
+            const commonWords = new Set([
+                'for', 'the', 'and', 'a', 'is', 'of', 'find', 'get', 'show', 'me', 'best', 
+                'cheapest', 'fastest', 'delivery', 'deal', 'deals', 'offer', 'offers', 'on', 
+                'in', 'what', 'where', 'how', 'much', 'buy', 'item', 'product', 'price', 'cost', 
+                'discount', 'brand', 'available', 'provide', 'tell', 'about', 'any', 'search', 'top',
+                'showme', 'pls', 'please'
+            ]);
+            return commonWords.has(word.toLowerCase());
+        }
+        
+        // START: extractInfo function (incorporates Quantity)
+        function extractInfo(line) {
+            let info = {
+                platform: "N/A", item: "N/A", brand: "N/A", cost: "N/A",
+                deals: "N/A", deliveryTime: "N/A", quantity: "N/A" // Added quantity
+            };
+            
+            let processedLine = line.trim().replace(/\s+/g, " "); // Normalize spaces
+
+            // 1. Extract Delivery Time (from the end)
+            const deliveryTimeRegex = /(\d+\s*mins?(?:utes)?|Same Day\s*\(?\s*\d+\s*hour\s*\)?)$/i;
+            const deliveryMatch = processedLine.match(deliveryTimeRegex);
+            if (deliveryMatch) {
+                info.deliveryTime = deliveryMatch[0].trim();
+                processedLine = processedLine.substring(0, processedLine.lastIndexOf(deliveryMatch[0])).trim();
+            }
+
+            // 2. Extract Quantity (before delivery time, or before cost if no delivery time)
+            const quantityRegex = /(.*?)\s*((?:\d+\s*x\s*)?\d*\.?\d*\s*(?:L|ml|kg|Kg|gm|GM|g|G|dozen|pcs|pc|pack|packs|bags|bag|unit|units|sachet|combo)(?:s)?(?:\s*\(.+?\))?)$/i;
+            let quantityMatch = processedLine.match(quantityRegex);
+            if (quantityMatch && quantityMatch[2]) { // Check group 2 for quantity
+                // Ensure it's not accidentally matching part of a deal like "2x combo" if cost follows
+                let textAfterQuantity = processedLine.substring(quantityMatch[0].length).trim();
+                if (!textAfterQuantity.match(/^\s*₹?\d/)) { // If what follows is not clearly a cost
+                    info.quantity = quantityMatch[2].trim();
+                    processedLine = quantityMatch[1].trim();
+                }
+            }
+
+            // 3. Extract Cost and Deals
+            let words = processedLine.split(/\s+/).filter(w => w.length > 0);
+            let costIndex = -1;
+            let costValue = "N/A";
+
+            for (let i = words.length - 1; i >= 0; i--) {
+                if (/^₹?\d+(\.\d+)?$/.test(words[i])) {
+                    let prevWord = (words[i-1] || "").toLowerCase();
+                    let nextWord = (words[i+1] || "").toLowerCase();
+                     if (!( (prevWord === "buy" || prevWord === "get" || prevWord === "save" || prevWord === "off") || // e.g. save 10
+                           (nextWord === "%" || nextWord === "off" || nextWord === "rs" || nextWord === "rs.") || // e.g. 10 % off
+                           (words[i].includes('%')) 
+                         )) {
+                         costIndex = i;
+                         costValue = words[i].startsWith('₹') ? words[i] : `₹${words[i]}`;
+                         break;
+                    }
+                }
+            }
+            info.cost = costValue;
+
+            // Extract Deals: Text after cost, or specific patterns if no cost found / text before cost
+            if (costIndex !== -1) {
+                if (costIndex < words.length - 1) {
+                    info.deals = words.slice(costIndex + 1).join(" ").trim();
+                }
+                processedLine = words.slice(0, costIndex).join(" ").trim(); // Text before cost
+            }
+            
+            // If deals still N/A, check the remaining processedLine (which is now before cost, or everything if no cost)
+            if ((info.deals === "N/A" || info.deals === "") && processedLine) {
+                 const dealPatternsSimple = [
+                    /\b(BOGO(?: on select items)?)\b/i, /\b(Buy \d+ Get \d+(?: Free| % off| ?rs off)?)\b/i, 
+                    /\b(\d+\.?\d*% off)\b/i, /\b(\d+rs off)\b/i, /\b(Combo Deal(?: with .*)?)\b/i,
+                    /\b(No specific deals mentioned)\b/i, /\b(No current deal)\b/i, /\b(None)\b/i
+                ];
+                for (const pattern of dealPatternsSimple) {
+                    const dealMatchSimple = processedLine.match(pattern);
+                    if (dealMatchSimple && dealMatchSimple[0].length > 3) { // Deal should be reasonably long
+                        info.deals = dealMatchSimple[0].trim();
+                        // Attempt to remove deal from processedLine to isolate item/brand
+                        // This can be risky if deal pattern is too generic.
+                        // processedLine = processedLine.replace(dealMatchSimple[0], "").trim(); 
+                        break;
+                    }
+                }
+            }
+            if (info.deals === "" || !info.deals) info.deals = "N/A";
+
+
+            // 4. Extract Platform
+            const platforms = ["Blinkit", "Instamart", "Zepto", "Big Basket", "Flipkart"]; // Case sensitive for extraction
+            for (const p of platforms) {
+                if (processedLine.toLowerCase().startsWith(p.toLowerCase())) {
+                    info.platform = p; 
+                    processedLine = processedLine.substring(p.length).trim();
+                    break; 
+                }
+            }
+            
+            // 5. Extract Item and Brand (from remaining processedLine)
+            words = processedLine.split(/\s+/).filter(w => w.length > 0);
+            const commonBrandsList = ["amul", "verka", "mother dairy", "bonn", "english oven", "harvest gold", "india gate", "daawat", "tata sampann", "aashirvaad", "pillsbury", "fortune", "madhur", "natureland organics", "local farm", "figaro", "patanjali", "saffola gold", "dhara", "tata tea", "tata salt", "lipton", "wagh bakri", "nescafe classic", "bru green label", "davidoff rich aroma", "president", "kapiva", "soyfit", "nestle a+", "epigamia", "everest tikhalal", "mdh deggi mirch", "catch", "parle-g gold", "britannia vita marie gold", "britannia", "mcvities", "mysore sandal gold", "dettol original", "dove cream bar", "patanjali dant kanti advanced", "colgate maxfresh", "sensodyne rapid relief", "surf excel easy wash", "ariel matic top load", "godrej ezee winterwear", "vim", "cadbury", "nestle", "lays", "bingo", "kettle studio", "coca-cola", "sprite", "mirinda", "pepsi black", "real activ", "tropicana", "b natural", "vadilal", "kwality walls cornetto", "kwality walls", "havmor", "maggi cuppa mania", "maggi nutrilicious", "maggi", "samyang buldak", "samyang", "kissan fresh", "kissan", "chings secret", "tops", "kelloggs", "bagrrys", "go", "safal", "mccain", "unibic", "sunfeast", "haldirams", "bikaji", "happilo", "nutraj", "bournvita 5 star magic", "bournvita", "horlicks classic malt", "horlicks", "ensure", "park avenue voyage", "park avenue", "nivea", "head & shoulders cool menthol", "head & shoulders", "clinic plus strong & long", "clinic plus", "lizol", "harpic", "air wick freshmatic", "air wick", "good knight gold flash", "good knight", "whisper", "stayfree secure", "stayfree", "sofy", "pampers all round protection", "pampers", "himalaya gentle", "himalaya", "dr. oetker funfoods", "dr. oetker", "veeba", "wingreens farms", "borges", "barilla", "generic local", "generic brand", "generic farm", "generic good quality", "generic", "imported", "24 mantra organic", "24 mantra"];
+            let brandFound = false;
+
+            if (words.length > 0) {
+                for (let brandLen = Math.min(3, words.length); brandLen >= 1; brandLen--) {
+                    let potentialBrand = words.slice(words.length - brandLen).join(" ");
+                    if (commonBrandsList.includes(potentialBrand.toLowerCase())) {
+                        info.brand = words.slice(words.length - brandLen).join(" ");
+                        info.item = words.slice(0, words.length - brandLen).join(" ");
+                        brandFound = true;
+                        break;
+                    }
+                }
+                if (!brandFound) {
+                    if (words.length > 1 && words[words.length-1].length > 2) { // If last word is reasonably long, assume brand
+                        info.brand = words.pop();
+                        info.item = words.join(" ");
+                    } else {
+                        info.item = words.join(" ");
+                        info.brand = "Generic"; // Default
+                    }
+                }
+            }
+            
+            if (info.item === "" && info.brand !== "N/A" && info.brand !== "Generic" && info.brand !== "") { info.item = "N/A"; }
+            if ((info.item === "" || info.item === "N/A") && (info.brand === "" || info.brand === "N/A" || info.brand === "Generic") && words.length > 0 && processedLine.length > 0) {
+                info.item = processedLine; // If everything else failed, assign whole remaining to item
+                info.brand = "Generic";
+            }
+
+
+            const titleCase = (str) => {
+                if (!str || str === "N/A" || typeof str !== 'string') return str;
+                return str.toLowerCase().split(' ').map(word => {
+                    if (word.length > 0) return word.charAt(0).toUpperCase() + word.slice(1);
+                    return "";
+                }).join(' ').trim();
+            };
+
+            info.item = titleCase(info.item);
+            info.brand = titleCase(info.brand);
+            
+            if (info.deals === "N/A" && info.cost !== "N/A" && info.deals !== "No current deal") info.deals = "No specific deals mentioned";
+            if (info.deals && typeof info.deals === 'string' && (info.deals.toLowerCase() === "none" || info.deals.trim() === "")) {
+                 info.deals = "No specific deals mentioned";
+            }
+
+
+            // Final check for quantity if still N/A (might be embedded in item/brand)
+            if (info.quantity === "N/A") {
+                let combinedItemBrand = (info.item !== "N/A" ? info.item + " " : "") + (info.brand !== "N/A" && info.brand !== "Generic" ? info.brand : "");
+                combinedItemBrand = combinedItemBrand.trim();
+                const finalQtyMatch = combinedItemBrand.match(quantityRegex);
+                if (finalQtyMatch && finalQtyMatch[2]) {
+                    info.quantity = finalQtyMatch[2].trim();
+                    // Try to remove from item/brand (very cautiously)
+                    let remainingAfterQty = finalQtyMatch[1].trim();
+                    if (remainingAfterQty.length > 0) {
+                        let reSplitWords = remainingAfterQty.split(/\s+/);
+                         if (reSplitWords.length > 1 && commonBrandsList.includes(reSplitWords[reSplitWords.length-1].toLowerCase())) {
+                            info.brand = titleCase(reSplitWords.pop());
+                            info.item = titleCase(reSplitWords.join(" "));
+                        } else if (reSplitWords.length > 0) {
+                            info.item = titleCase(remainingAfterQty);
+                            // Keep original brand if it wasn't generic or part of quantity text
+                        }
+                    } else if (info.item.toLowerCase().includes(info.quantity.toLowerCase())) { // if quantity consumed whole item
+                        info.item = "N/A"; // Or some placeholder
+                    }
+                }
+            }
+            if(info.item === "N/a") info.item = "N/A";
+            if(info.brand === "N/a" || info.brand === "Generic N/a") info.brand = "Generic";
+            if(info.quantity === "N/a") info.quantity = "N/A";
+            if(info.deals === "N/a") info.deals = "N/A";
+
+
+            return info;
+        }
+        // END: extractInfo function
+
+        // START: searchPdfData function (handles multiple items)
+        function searchPdfData(query) {
+            const lowerQuery = query.toLowerCase();
+            let combinedResults = [];
+            
+            // Split query by "and", "&", or "," allowing for surrounding spaces
+            const itemSeparators = /\s*\b(?:and|&|,)\b\s*/;
+            let potentialItemsInQuery = lowerQuery.split(itemSeparators)
+                .map(item => item.trim())
+                .filter(item => item.length > 0);
+
+            // Clean up each potential item part
+            potentialItemsInQuery = potentialItemsInQuery.map(itemPart => {
+                itemPart = itemPart.replace(/^(?:best|any|find|search|show me|top)\s+(?:deal|deals|offer|offers)\s+(?:on|for)\s*/i, '');
+                itemPart = itemPart.replace(/^(?:fastest delivery for)\s*/i, '');
+                itemPart = itemPart.replace(/\s+(?:best|any|find|search|show me|top)\s+(?:deal|deals|offer|offers)$/i, '');
+                itemPart = itemPart.replace(/\s+(?:fastest delivery)$/i, '');
+                return itemPart.trim();
+            }).filter(item => item.length > 0);
+
+            if (potentialItemsInQuery.length === 0 && query.trim().length > 0) {
+                let singleItemTarget = lowerQuery;
+                singleItemTarget = singleItemTarget.replace(/^(?:best|any|find|search|show me|top)\s+(?:deal|deals|offer|offers)\s+(?:on|for)\s*/i, '');
+                singleItemTarget = singleItemTarget.replace(/^(?:fastest delivery for)\s*/i, '');
+                singleItemTarget = singleItemTarget.replace(/\s+(?:best|any|find|search|show me|top)\s+(?:deal|deals|offer|offers)$/i, '');
+                singleItemTarget = singleItemTarget.replace(/\s+(?:fastest delivery)$/i, '');
+                if(singleItemTarget.trim().length > 0) potentialItemsInQuery.push(singleItemTarget.trim());
+            }
+            
+            if (potentialItemsInQuery.length === 0) { 
+                 console.log(`Performing GENERAL search for query: "${lowerQuery}"`);
+                 const queryTerms = lowerQuery.split(/\s+/).filter(term => term.length > 1 && !isCommonQueryWord(term));
+                 const searchTermsToUse = queryTerms.length > 0 ? queryTerms : lowerQuery.split(/\s+/).filter(term => term.length > 0 && !isCommonQueryWord(term));
+
+
+                 if (searchTermsToUse.length > 0) {
+                    pdfTextData.forEach(line => {
+                        const info = extractInfo(line);
+                        const lowerLineText = (info.platform + " " + info.item + " " + info.brand + " " + info.deals).toLowerCase(); 
+                        let matchCount = 0;
+                        searchTermsToUse.forEach(term => {
+                            if (lowerLineText.includes(term)) {
+                                matchCount++;
+                                if (info.item && info.item !== "N/A" && info.item.toLowerCase().includes(term)) matchCount += 2;
+                                if (info.brand && info.brand !== "N/A" && info.brand.toLowerCase().includes(term)) matchCount += 2;
+                            }
+                        });
+                        if (matchCount > 0) combinedResults.push({ line: line, score: matchCount, fullInfo: info, queriedItem: "general" });
+                    });
+                 }
+            } else {
+                 potentialItemsInQuery.forEach(targetItemName => {
+                    if (!targetItemName || targetItemName.trim() === "") return;
+
+                    let resultsForItem = [];
+                    let searchMode = "general_for_item"; 
+
+                    if (lowerQuery.includes("fastest delivery")) searchMode = "fastest_for_item";
+                    else if (lowerQuery.includes("deal") || lowerQuery.includes("offer")) searchMode = "best_deal_for_item";
+                    
+                    console.log(`Processing item part: "${targetItemName}" with mode: "${searchMode}"`);
+
+                    let itemEntries = [];
+                    let targetItemTerms = targetItemName.toLowerCase().split(/\s+/).filter(t => t.length > 0 && !isCommonQueryWord(t));
+                    if (targetItemTerms.length === 0 && targetItemName.length > 0) {
+                        targetItemTerms = targetItemName.toLowerCase().split(/\s+/).filter(t => t.length > 0);
+                    }
+
+                    if (targetItemTerms.length > 0) {
+                        pdfTextData.forEach(line => {
+                            const info = extractInfo(line);
+                            const currentItemText = ((info.item && info.item !== "N/A" ? info.item.toLowerCase() : "") + 
+                                                     (info.brand && info.brand !== "N/A" && info.brand !== "Generic" ? " " + info.brand.toLowerCase() : "")).trim();
+
+                            if (targetItemTerms.every(term => currentItemText.includes(term))) {
+                                let entry = { line: line, fullInfo: info, queriedItem: targetItemName, score: 0 };
+                                if (searchMode === "fastest_for_item") {
+                                    entry.deliveryMinutes = parseDeliveryTimeToMinutes(info.deliveryTime);
+                                    entry.score = 10000 - entry.deliveryMinutes; // Higher score for faster
+                                } else if (searchMode === "best_deal_for_item") {
+                                    if (info.deals && typeof info.deals === 'string' &&
+                                        info.deals.toLowerCase() !== "no specific deals mentioned" &&
+                                        info.deals.toLowerCase() !== "no current deal" &&
+                                        info.deals.toLowerCase() !== "n/a") {
+                                        entry.score = 100; // High score for having a deal
+                                    } else {
+                                        entry.score = 10; // Lower score if no specific deal for "best deal" query
+                                    }
+                                } else { // general_for_item
+                                    entry.score = targetItemTerms.length * 5; // Base score on term matches
+                                     if (info.deals && typeof info.deals === 'string' && info.deals.toLowerCase() !== "no specific deals mentioned" && info.deals.toLowerCase() !== "no current deal" && info.deals.toLowerCase() !== "n/a") {
+                                        entry.score += 5; // Bonus for having a deal
+                                    }
+                                }
+                                itemEntries.push(entry);
+                            }
+                        });
+
+                        itemEntries.sort((a, b) => (b.score || 0) - (a.score || 0));
+                        resultsForItem = itemEntries.slice(0, 3); // Top 3 for this item part
+                    }
+                    combinedResults.push(...resultsForItem);
+                });
+            }
+
+            const uniqueResults = [];
+            const seenLines = new Set();
+            for (const res of combinedResults) {
+                if (!seenLines.has(res.line + res.queriedItem)) { // Make key more unique if same line matches diff item queries
+                    uniqueResults.push(res);
+                    seenLines.add(res.line + res.queriedItem);
+                }
+            }
+            // Sort all unique results by their calculated score
+            uniqueResults.sort((a, b) => (b.score || 0) - (a.score || 0));
+            
+            return uniqueResults.slice(0, 10); 
+        }
+        // END: searchPdfData function
+
+        // START: displayResults function (shows Quantity and handles multiple items)
+        function displayResults(resultsWithScore, query) {
+            let htmlOutput = ""; 
+
+            if (!resultsWithScore || resultsWithScore.length === 0) {
+                htmlOutput = `<p class="no-results">🌶️ Oops! Grocee couldn't find anything matching "<strong>${query}</strong>". <br>Try a different search or ensure your PDF has the info!</p>`;
+            } else {
+                htmlOutput = `<p>Here's what Grocee fetched for "<strong>${query}</strong>":</p>`;
+                htmlOutput += "<ul>";
+                
+                let foundItemsForSuggestions = [];
+                let displayedQueriedItems = new Set(); 
+
+                resultsWithScore.forEach(resultItem => {
+                    const info = resultItem.fullInfo || extractInfo(resultItem.line); 
+                    foundItemsForSuggestions.push(info); 
+
+                    if (resultItem.queriedItem && resultItem.queriedItem !== "general" && !displayedQueriedItems.has(resultItem.queriedItem)) {
+                        if (displayedQueriedItems.size > 0) htmlOutput += "<hr style='margin: 20px 0 15px; border: 0; border-top: 1px solid var(--border-color);'>";
+                        htmlOutput += `<h4 style="margin-top:15px; margin-bottom:10px; color:var(--accent-purple); font-size: 1.2em;">🎯 For "${resultItem.queriedItem.charAt(0).toUpperCase() + resultItem.queriedItem.slice(1)}":</h4>`;
+                        displayedQueriedItems.add(resultItem.queriedItem);
+                    }
+
+                    htmlOutput += `<li>`;
+                    htmlOutput += `<div class="info-item"><span class="icon">🛒</span><strong>Item:</strong> ${info.item || 'N/A'}</div>`;
+                    htmlOutput += `<div class="info-item"><span class="icon">🏭</span><strong>Brand:</strong> ${info.brand || 'N/A'}</div>`;
+                    htmlOutput += `<div class="info-item"><span class="icon">🛍️</span><strong>Quantity:</strong> ${info.quantity || 'N/A'}</div>`; // ADDED QUANTITY
+                    htmlOutput += `<div class="info-item"><span class="icon">🏪</span><strong>Platform:</strong> ${info.platform || 'N/A'}</div>`;
+                    htmlOutput += `<div class="info-item"><span class="icon">💰</span><strong>Cost:</strong> ${info.cost || 'N/A'}</div>`;
+                    htmlOutput += `<div class="info-item"><span class="icon">🏷️</span><strong>Deals:</strong> <span class="deal-text">${info.deals || 'N/A'}</span></div>`;
+                    htmlOutput += `<div class="info-item"><span class="icon">⏱️</span><strong>Avg. Delivery:</strong> ${info.deliveryTime || 'N/A'}</div>`;
+                    htmlOutput += `</li>`;
+                });
+                htmlOutput += "</ul>";
+
+                let suggestions = [];
+                let minDeliveryTime = Infinity;
+                let fastestPlatform = "";
+                let fastestItemDetails = null; 
+                let dealsCount = 0;
+                let itemsWithDeals = [];
+
+                foundItemsForSuggestions.forEach(info => {
+                    if (info.deliveryTime !== "N/A" && typeof info.deliveryTime === 'string') {
+                        const deliveryMinutes = parseDeliveryTimeToMinutes(info.deliveryTime);
+                        if (deliveryMinutes < minDeliveryTime) {
+                            minDeliveryTime = deliveryMinutes;
+                            fastestPlatform = info.platform !== "N/A" ? info.platform : "N/A";
+                            fastestItemDetails = info; 
+                        }
+                    }
+                    if (info.deals && typeof info.deals === 'string' && 
+                        info.deals.toLowerCase() !== "no specific deals mentioned" && 
+                        info.deals.toLowerCase() !== "no current deal" &&
+                        info.deals.toLowerCase() !== "n/a" ) {
+                        dealsCount++;
+                        if (info.item && info.item !== "N/A (Check context)" && info.item !== "N/A" && !itemsWithDeals.includes(info.item)) {
+                            itemsWithDeals.push(info.item);
+                        }
+                    }
+                });
+
+                const queryLower = query.toLowerCase();
+                if ((queryLower.includes("fastest delivery")) && fastestItemDetails && fastestItemDetails.item !== "N/A") {
+                     suggestions.push(`🚀 Among the relevant items, the fastest option appears to be ~<strong>${fastestItemDetails.deliveryTime}</strong> via <strong>${fastestItemDetails.platform}</strong> (for ${fastestItemDetails.item} - ${fastestItemDetails.brand}).`);
+                } else if (fastestPlatform && minDeliveryTime !== Infinity && fastestPlatform !== "N/A" && resultsWithScore.length > 1) { 
+                    suggestions.push(`🚀 For potentially faster delivery among these results, <strong>${fastestPlatform}</strong> has an option around ${minDeliveryTime} min.`);
+                }
+
+                if ((queryLower.includes("deal") || queryLower.includes("offer")) && dealsCount > 0) {
+                    let dealSuggestion = `🎉 Grocee found <strong>${dealsCount} result(s) with potential deals!</strong>`;
+                    if (itemsWithDeals.length > 0 && itemsWithDeals.length <=3) {
+                        dealSuggestion += ` Check out offers for: ${itemsWithDeals.join(', ')}.`;
+                    } else if (itemsWithDeals.length > 3) {
+                        dealSuggestion += ` Check out offers for items like ${itemsWithDeals.slice(0,2).join(', ')} and more.`;
+                    }
+                    suggestions.push(dealSuggestion);
+                } else if (dealsCount > 0 && !queryLower.includes("deal") && !queryLower.includes("offer") ){
+                     suggestions.push(`🎉 Psst! Grocee also noticed <strong>${dealsCount} result(s) with potential deals!</strong> You might want to check them out.`);
+                }
+
+                if (resultsWithScore.length > 3 && resultsWithScore.length < 10) {
+                    suggestions.push(`🔍 Found ${resultsWithScore.length} relevant entries. You can refine your query for more specific results if needed.`);
+                }
+                if (suggestions.length === 0 && resultsWithScore.length > 0) { 
+                    suggestions.push("💡 Remember to compare options across different platforms if available in the data!");
+                }
+
+                if (suggestions.length > 0) {
+                    htmlOutput += "<p style='margin-top: 25px;'><strong>Grocee's Quick Suggestions:</strong></p><ul>";
+                    suggestions.forEach(sugg => {
+                        htmlOutput += `<li class="suggestion">${sugg}</li>`;
+                    });
+                    htmlOutput += "</ul>";
+                }
+            }
+            
+            responseArea.innerHTML = htmlOutput; 
+            responseArea.style.opacity = 1; 
+        }
+        // END: displayResults function
+    </script>
+</body>
+</html>
