@@ -1,0 +1,10 @@
+Flask
+Flask-CORS
+chromadb>=0.5.0
+google-generativeai
+pypdf
+pdf2image
+Pillow
+pytesseract
+werkzeug
+numpy
